@@ -35,8 +35,11 @@ fn get_index(x: usize, y: usize, max_y: usize) -> usize {
 }
 
 impl Game {
-    fn add_block(&mut self, x:usize, y:usize) {
-        self.map.get_mut(get_index(x, y, self.max_y)).expect("Position should exist").pos_type = PositionType::BLOCKED;
+    fn add_block(&mut self, x: usize, y: usize) {
+        self.map
+            .get_mut(get_index(x, y, self.max_y))
+            .expect("Position should exist")
+            .pos_type = PositionType::BLOCKED;
     }
 
     fn get_map_position(&self, x: usize, y: usize) -> Position {
@@ -99,7 +102,6 @@ impl Game {
     fn perform_move(&mut self) -> bool {
         // println!("Move is in bounds: {}", self.is_move_in_bounds());
         if !self.is_move_in_bounds() {
-            
             return false;
         }
         if self.can_move() {
@@ -122,6 +124,10 @@ impl Game {
         // println!("Turning right");
         self.turn_right();
         true
+    }
+
+    fn is_in_infinite_loop(&self) -> bool {
+        self.steps_taken > (self.max_x + 1) * (self.max_y + 1)
     }
 }
 
@@ -167,17 +173,17 @@ fn build_game(file_name: &str) -> Game {
         max_y: line_length - 1,
         current_position: current_pos.expect("Starting position exists"),
         current_direction: Direction::UP,
-        steps_taken: 0
+        steps_taken: 0,
     }
 }
 
 fn main() {
     let file_name = "input";
 
-    let mut game= build_game(&file_name);
+    let mut game = build_game(&file_name);
     loop {
         let has_moved = game.perform_move();
-        
+
         if !has_moved {
             break;
         }
@@ -188,16 +194,16 @@ fn main() {
     for x in 0..=game.max_x {
         for y in 0..=game.max_y {
             let mut updated_game = build_game(&file_name);
-            let max_steps = (updated_game.max_x+1)*(updated_game.max_y+1);
+
             updated_game.add_block(x, y);
             loop {
                 let has_moved = updated_game.perform_move();
 
-                if updated_game.steps_taken > max_steps {
+                if updated_game.is_in_infinite_loop() {
                     part_two_count += 1;
                     break;
                 }
-                
+
                 if !has_moved {
                     break;
                 }
