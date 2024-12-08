@@ -78,7 +78,6 @@ impl Update {
             temp.append(&mut self.values[move_to_index..].iter().filter(|v| **v != rule.before).map(|v| *v).collect());
             temp
         };
-        println!("{:?}, {:?}, {:?}, {}, {}", rule, self.values, new_values, move_index, move_to_index);
         self.values = new_values;
         self
     }
