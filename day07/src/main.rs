@@ -6,7 +6,7 @@ use itertools::Itertools;
 enum Operation {
     ADD,
     MULTIPLY,
-    CONCAT
+    CONCAT,
 }
 
 #[derive(Debug)]
@@ -36,15 +36,8 @@ impl From<Vec<char>> for SolutionAttempt {
 }
 
 impl Equation {
-    fn is_solveable_without_concat(&self) -> bool {
-        iter::repeat_n(['+', '*'], self.components.len() - 1)
-            .multi_cartesian_product()
-            .map(|att| att.into())
-            .any(|att| self.solves(att))
-    }
-
-    fn is_solveable_with_concat(&self) -> bool {
-        iter::repeat_n(['+', '*', '|'], self.components.len() - 1)
+    fn is_solveable(&self, operators: Vec<char>) -> bool {
+        iter::repeat_n(operators, self.components.len() - 1)
             .multi_cartesian_product()
             .map(|att| att.into())
             .any(|att| self.solves(att))
@@ -69,9 +62,9 @@ impl Equation {
                     }
                     Operation::CONCAT => {
                         let next_comp = component_iter.next().expect("component should exist");
-                        let factor = 10_usize.pow(next_comp.to_string().len().try_into().unwrap()) ;
-                        accumulator = accumulator*factor+next_comp;
-                    },
+                        let factor = 10_usize.pow(next_comp.to_string().len().try_into().unwrap());
+                        accumulator = accumulator * factor + next_comp;
+                    }
                 },
                 None => return accumulator == self.result,
             }
@@ -107,13 +100,13 @@ fn main() {
         .collect();
     let part_one_solution: usize = equations
         .iter()
-        .filter(|eq| eq.is_solveable_without_concat())
+        .filter(|eq| eq.is_solveable(['+', '*'].to_vec()))
         .map(|eq| eq.result)
         .sum();
     println!("Part one: {}", part_one_solution);
     let part_two_solution: usize = equations
         .iter()
-        .filter(|eq| eq.is_solveable_with_concat())
+        .filter(|eq| eq.is_solveable(['+', '*', '|'].to_vec()))
         .map(|eq| eq.result)
         .sum();
     println!("Part two: {}", part_two_solution);
